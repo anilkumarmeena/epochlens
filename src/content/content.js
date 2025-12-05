@@ -19,6 +19,7 @@
   let scanTimeout = null;
   let observer = null;
   let activePopup = null;
+  let activeTooltip = null;
   
   /**
    * Initialize the content script
@@ -49,14 +50,15 @@
         // Re-scan with new settings
         cleanup();
         scanPage();
+        setupMutationObserver();
       }
     });
     
     // Listen for messages from popup/background
     chrome.runtime.onMessage.addListener(handleMessage);
     
-    // Set up click handler for copy functionality
-    document.addEventListener('click', handleTimestampClick);
+    // Set up double-click handler for copy functionality
+    document.addEventListener('dblclick', handleTimestampClick);
   }
   
   /**
@@ -73,6 +75,7 @@
         cleanup();
         if (settings.enabled) {
           scanPage();
+          setupMutationObserver();
         }
         sendResponse({ success: true });
         break;
@@ -191,7 +194,7 @@
     const result = Converter.convert(timestamp, settings);
     const wrapper = document.createElement('span');
     
-    wrapper.className = `${CSS_PREFIX}-timestamp ${CSS_PREFIX}-${settings.displayMode}`;
+    wrapper.className = `${CSS_PREFIX}-timestamp ${CSS_PREFIX}-${settings.displayMode} ${CSS_PREFIX}-style-${settings.highlightStyle}`;
     wrapper.dataset.epochlensTimestamp = timestamp;
     wrapper.dataset.epochlensMs = result.milliseconds;
     
@@ -202,8 +205,8 @@
     wrapper.appendChild(originalSpan);
     
     if (result.success) {
-      // Set tooltip
-      wrapper.title = `${result.formatted}${result.secondaryFormatted ? '\n' + result.secondaryFormatted : ''}\n${result.relative}\n\nClick to copy`;
+      // Store tooltip text in data attribute (don't use native title - it has delay)
+      wrapper.dataset.epochlensTooltip = `${result.formatted}${result.secondaryFormatted ? '\n' + result.secondaryFormatted : ''}\n${result.relative}\n\nDouble-click to copy`;
       
       // Add inline badge if in inline mode
       if (settings.displayMode === 'inline') {
@@ -213,17 +216,76 @@
         wrapper.appendChild(badge);
       }
       
-      // Add hover popup if in popup mode
+      // Add hover handlers for popup mode or tooltip mode
       if (settings.displayMode === 'popup') {
         wrapper.addEventListener('mouseenter', showPopup);
         wrapper.addEventListener('mouseleave', hidePopup);
+      } else {
+        // Use custom instant tooltip for tooltip/inline modes
+        wrapper.addEventListener('mouseenter', showTooltip);
+        wrapper.addEventListener('mouseleave', hideTooltip);
       }
     } else {
       wrapper.classList.add(`${CSS_PREFIX}-invalid`);
-      wrapper.title = 'Invalid timestamp';
+      wrapper.dataset.epochlensTooltip = 'Invalid timestamp';
+      wrapper.addEventListener('mouseenter', showTooltip);
+      wrapper.addEventListener('mouseleave', hideTooltip);
     }
     
     return wrapper;
+  }
+  
+  /**
+   * Show instant tooltip on hover
+   */
+  function showTooltip(event) {
+    const wrapper = event.currentTarget;
+    const text = wrapper.dataset.epochlensTooltip;
+    
+    if (!text) return;
+    
+    // Remove any existing tooltip
+    hideTooltip();
+    
+    // Create tooltip
+    const tooltip = document.createElement('div');
+    tooltip.className = `${CSS_PREFIX}-tooltip-popup`;
+    tooltip.textContent = text;
+    
+    document.body.appendChild(tooltip);
+    activeTooltip = tooltip;
+    
+    // Position tooltip
+    const rect = wrapper.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    
+    let top = rect.bottom + window.scrollY + 6;
+    let left = rect.left + window.scrollX + (rect.width / 2) - (tooltipRect.width / 2);
+    
+    // Adjust if off-screen horizontally
+    if (left < 8) {
+      left = 8;
+    } else if (left + tooltipRect.width > window.innerWidth - 8) {
+      left = window.innerWidth - tooltipRect.width - 8;
+    }
+    
+    // Adjust if off-screen vertically (show above instead)
+    if (top + tooltipRect.height > window.innerHeight + window.scrollY) {
+      top = rect.top + window.scrollY - tooltipRect.height - 6;
+    }
+    
+    tooltip.style.top = `${top}px`;
+    tooltip.style.left = `${left}px`;
+  }
+  
+  /**
+   * Hide instant tooltip
+   */
+  function hideTooltip() {
+    if (activeTooltip) {
+      activeTooltip.remove();
+      activeTooltip = null;
+    }
   }
   
   /**
@@ -268,7 +330,7 @@
         </div>
         <div class="${CSS_PREFIX}-popup-row ${CSS_PREFIX}-popup-meta">
           <span>${result.isSeconds ? 'Seconds' : 'Milliseconds'}</span>
-          <span>Click to copy</span>
+          <span>Double-click to copy</span>
         </div>
       </div>
     `;
@@ -294,10 +356,9 @@
     
     popup.style.top = `${top}px`;
     popup.style.left = `${left}px`;
-    popup.style.opacity = '1';
     
-    // Add click handler for copy
-    popup.addEventListener('click', handlePopupClick);
+    // Add double-click handler for copy
+    popup.addEventListener('dblclick', handlePopupClick);
   }
   
   /**
@@ -461,8 +522,9 @@
       wrapper.parentNode.replaceChild(textNode, wrapper);
     });
     
-    // Remove popup if visible
+    // Remove popup and tooltip if visible
     hidePopup();
+    hideTooltip();
     
     // Reset count
     timestampCount = 0;

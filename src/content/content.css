@@ -15,6 +15,8 @@
   --epochlens-shadow: rgba(0, 0, 0, 0.1);
   --epochlens-success: #10b981;
   --epochlens-indicator: #6366f1;
+  --epochlens-highlight-bg: rgba(99, 102, 241, 0.15);
+  --epochlens-highlight-bg-hover: rgba(99, 102, 241, 0.25);
 }
 
 /* Dark theme */
@@ -29,7 +31,9 @@
     --epochlens-border: #475569;
     --epochlens-shadow: rgba(0, 0, 0, 0.3);
     --epochlens-success: #34d399;
-    --epochlens-indicator: #818cf8;
+    --epochlens-indicator: #a5b4fc;
+    --epochlens-highlight-bg: rgba(165, 180, 252, 0.25);
+    --epochlens-highlight-bg-hover: rgba(165, 180, 252, 0.4);
   }
 }
 
@@ -40,16 +44,45 @@
   transition: all 0.15s ease;
 }
 
-/* Tooltip mode (default) - dotted underline */
-.epochlens-timestamp.epochlens-tooltip {
+/* Indicator styles - Dotted underline */
+.epochlens-timestamp.epochlens-style-dotted {
   border-bottom: 1px dotted var(--epochlens-indicator);
   text-decoration: none;
 }
 
-.epochlens-timestamp.epochlens-tooltip:hover {
+.epochlens-timestamp.epochlens-style-dotted:hover {
   border-bottom-style: solid;
-  background-color: rgba(99, 102, 241, 0.1);
+}
+
+/* Indicator styles - Solid underline */
+.epochlens-timestamp.epochlens-style-solid {
+  border-bottom: 1px solid var(--epochlens-indicator);
+  text-decoration: none;
+}
+
+.epochlens-timestamp.epochlens-style-solid:hover {
+  border-bottom-width: 2px;
+}
+
+/* Indicator styles - Background highlight */
+.epochlens-timestamp.epochlens-style-background {
+  background-color: var(--epochlens-highlight-bg);
   border-radius: 2px;
+  padding: 0 2px;
+  margin: 0 -2px;
+}
+
+.epochlens-timestamp.epochlens-style-background:hover {
+  background-color: var(--epochlens-highlight-bg-hover);
+}
+
+/* Tooltip mode (default) */
+.epochlens-timestamp.epochlens-tooltip {
+  /* Uses indicator style classes above */
+}
+
+.epochlens-timestamp.epochlens-tooltip:hover {
+  /* Hover handled by indicator style */
 }
 
 /* Inline mode - badge next to timestamp */
@@ -66,23 +99,41 @@
   font-size: 0.75em;
   font-weight: 500;
   color: var(--epochlens-primary);
-  background: rgba(99, 102, 241, 0.1);
+  background: var(--epochlens-highlight-bg);
   border-radius: 4px;
   white-space: nowrap;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .epochlens-timestamp.epochlens-inline:hover .epochlens-badge {
-  background: rgba(99, 102, 241, 0.2);
+  background: var(--epochlens-highlight-bg-hover);
 }
 
-/* Popup mode - subtle indicator */
+/* Popup mode */
 .epochlens-timestamp.epochlens-popup {
-  border-bottom: 2px dotted var(--epochlens-indicator);
+  /* Uses indicator style classes above */
 }
 
 .epochlens-timestamp.epochlens-popup:hover {
-  border-bottom-style: solid;
+  /* Hover handled by indicator style */
+}
+
+/* Instant tooltip (replaces native title) */
+.epochlens-tooltip-popup {
+  position: absolute;
+  z-index: 2147483647;
+  max-width: 300px;
+  padding: 8px 12px;
+  background: var(--epochlens-bg);
+  border: 1px solid var(--epochlens-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px var(--epochlens-shadow);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--epochlens-text);
+  white-space: pre-line;
+  pointer-events: none;
 }
 
 /* Floating popup */
@@ -101,8 +152,6 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   font-size: 13px;
   line-height: 1.5;
-  opacity: 0;
-  transition: opacity 0.15s ease;
   overflow: hidden;
 }
 
