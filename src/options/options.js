@@ -22,7 +22,7 @@ const DEFAULT_SETTINGS = {
 
 // State
 let settings = { ...DEFAULT_SETTINGS };
-let hasChanges = false;
+let saveTimeout = null;
 
 // DOM Elements
 const elements = {
@@ -52,7 +52,7 @@ const elements = {
   
   // Actions
   resetBtn: document.getElementById('resetBtn'),
-  saveBtn: document.getElementById('saveBtn'),
+  autoSaveIndicator: document.getElementById('autoSaveIndicator'),
   
   // Toast
   toast: document.getElementById('toast'),
@@ -135,54 +135,49 @@ function populateForm() {
  * Set up event listeners
  */
 function setupEventListeners() {
-  // Track changes for all inputs
-  const trackChange = () => {
-    hasChanges = true;
-  };
-  
   // General toggles
   elements.enabled.addEventListener('change', () => {
     settings.enabled = elements.enabled.checked;
-    trackChange();
+    autoSave();
   });
   
   elements.autoScan.addEventListener('change', () => {
     settings.autoScan = elements.autoScan.checked;
-    trackChange();
+    autoSave();
   });
   
   elements.showBadgeCount.addEventListener('change', () => {
     settings.showBadgeCount = elements.showBadgeCount.checked;
-    trackChange();
+    autoSave();
   });
   
   // Display
   elements.displayMode.addEventListener('change', () => {
     settings.displayMode = elements.displayMode.value;
-    trackChange();
+    autoSave();
   });
   
   elements.highlightStyle.addEventListener('change', () => {
     settings.highlightStyle = elements.highlightStyle.value;
-    trackChange();
+    autoSave();
   });
   
   // Timezone
   elements.timezone.addEventListener('change', () => {
     settings.timezone = elements.timezone.value;
-    trackChange();
     updateFormatPreview();
+    autoSave();
   });
   
   elements.showSecondaryTimezone.addEventListener('change', () => {
     settings.showSecondaryTimezone = elements.showSecondaryTimezone.checked;
     updateConditionalFields();
-    trackChange();
+    autoSave();
   });
   
   elements.secondaryTimezone.addEventListener('change', () => {
     settings.secondaryTimezone = elements.secondaryTimezone.value;
-    trackChange();
+    autoSave();
   });
   
   // Format
@@ -190,32 +185,23 @@ function setupEventListeners() {
     settings.dateFormat = elements.dateFormat.value;
     updateConditionalFields();
     updateFormatPreview();
-    trackChange();
+    autoSave();
   });
   
   elements.customFormat.addEventListener('input', () => {
     settings.customFormat = elements.customFormat.value;
     updateFormatPreview();
-    trackChange();
+    autoSave();
   });
   
   // Advanced
   elements.scanDelay.addEventListener('change', () => {
     settings.scanDelay = parseInt(elements.scanDelay.value, 10) || 500;
-    trackChange();
+    autoSave();
   });
   
   // Actions
   elements.resetBtn.addEventListener('click', resetSettings);
-  elements.saveBtn.addEventListener('click', handleSave);
-  
-  // Warn before leaving with unsaved changes
-  window.addEventListener('beforeunload', (e) => {
-    if (hasChanges) {
-      e.preventDefault();
-      e.returnValue = '';
-    }
-  });
 }
 
 /**
@@ -330,31 +316,49 @@ function formatCustom(date, pattern, timezone) {
 }
 
 /**
- * Handle save button click
+ * Auto-save settings with debounce
  */
-async function handleSave() {
-  try {
-    await saveSettings();
-    hasChanges = false;
-    showToast('Settings saved!');
-    
-    // Notify all tabs to reload settings
-    chrome.tabs.query({}, (tabs) => {
-      tabs.forEach(tab => {
-        if (tab.id) {
-          chrome.tabs.sendMessage(tab.id, {
-            type: 'UPDATE_SETTINGS',
-            settings
-          }).catch(() => {
-            // Tab might not have content script
-          });
-        }
-      });
-    });
-  } catch (error) {
-    showToast('Failed to save settings', true);
-    console.error('Save error:', error);
+function autoSave() {
+  // Clear any pending save
+  if (saveTimeout) {
+    clearTimeout(saveTimeout);
   }
+  
+  // Debounce save by 300ms
+  saveTimeout = setTimeout(async () => {
+    try {
+      await saveSettings();
+      showAutoSaveIndicator();
+      
+      // Notify all tabs to reload settings
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach(tab => {
+          if (tab.id) {
+            chrome.tabs.sendMessage(tab.id, {
+              type: 'UPDATE_SETTINGS',
+              settings
+            }).catch(() => {
+              // Tab might not have content script
+            });
+          }
+        });
+      });
+    } catch (error) {
+      showToast('Failed to save settings', true);
+      console.error('Auto-save error:', error);
+    }
+  }, 300);
+}
+
+/**
+ * Show auto-save indicator briefly
+ */
+function showAutoSaveIndicator() {
+  elements.autoSaveIndicator.classList.add('show');
+  
+  setTimeout(() => {
+    elements.autoSaveIndicator.classList.remove('show');
+  }, 2000);
 }
 
 /**
@@ -370,8 +374,21 @@ async function resetSettings() {
   
   try {
     await saveSettings();
-    hasChanges = false;
     showToast('Settings reset to defaults');
+    
+    // Notify all tabs to reload settings
+    chrome.tabs.query({}, (tabs) => {
+      tabs.forEach(tab => {
+        if (tab.id) {
+          chrome.tabs.sendMessage(tab.id, {
+            type: 'UPDATE_SETTINGS',
+            settings
+          }).catch(() => {
+            // Tab might not have content script
+          });
+        }
+      });
+    });
   } catch (error) {
     showToast('Failed to reset settings', true);
   }

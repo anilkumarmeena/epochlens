@@ -18,7 +18,6 @@
   let isScanning = false;
   let scanTimeout = null;
   let observer = null;
-  let activePopup = null;
   let activeTooltip = null;
   
   /**
@@ -216,15 +215,9 @@
         wrapper.appendChild(badge);
       }
       
-      // Add hover handlers for popup mode or tooltip mode
-      if (settings.displayMode === 'popup') {
-        wrapper.addEventListener('mouseenter', showPopup);
-        wrapper.addEventListener('mouseleave', hidePopup);
-      } else {
-        // Use custom instant tooltip for tooltip/inline modes
-        wrapper.addEventListener('mouseenter', showTooltip);
-        wrapper.addEventListener('mouseleave', hideTooltip);
-      }
+      // Add hover handlers for instant tooltip
+      wrapper.addEventListener('mouseenter', showTooltip);
+      wrapper.addEventListener('mouseleave', hideTooltip);
     } else {
       wrapper.classList.add(`${CSS_PREFIX}-invalid`);
       wrapper.dataset.epochlensTooltip = 'Invalid timestamp';
@@ -285,101 +278,6 @@
     if (activeTooltip) {
       activeTooltip.remove();
       activeTooltip = null;
-    }
-  }
-  
-  /**
-   * Show floating popup on hover
-   */
-  function showPopup(event) {
-    const wrapper = event.currentTarget;
-    const timestamp = wrapper.dataset.epochlensTimestamp;
-    const result = Converter.convert(timestamp, settings);
-    
-    if (!result.success) return;
-    
-    // Remove any existing popup
-    hidePopup();
-    
-    // Create popup
-    const popup = document.createElement('div');
-    popup.className = `${CSS_PREFIX}-popup`;
-    popup.innerHTML = `
-      <div class="${CSS_PREFIX}-popup-header">
-        <span class="${CSS_PREFIX}-popup-icon">🕐</span>
-        <span class="${CSS_PREFIX}-popup-title">EpochLens</span>
-      </div>
-      <div class="${CSS_PREFIX}-popup-content">
-        <div class="${CSS_PREFIX}-popup-row">
-          <span class="${CSS_PREFIX}-popup-label">Original:</span>
-          <span class="${CSS_PREFIX}-popup-value ${CSS_PREFIX}-copyable" data-copy="${timestamp}">${timestamp}</span>
-        </div>
-        <div class="${CSS_PREFIX}-popup-row">
-          <span class="${CSS_PREFIX}-popup-label">${settings.timezone === 'local' ? 'Local' : settings.timezone}:</span>
-          <span class="${CSS_PREFIX}-popup-value ${CSS_PREFIX}-copyable" data-copy="${result.formatted}">${result.formatted}</span>
-        </div>
-        ${result.secondaryFormatted ? `
-        <div class="${CSS_PREFIX}-popup-row">
-          <span class="${CSS_PREFIX}-popup-label">${settings.secondaryTimezone}:</span>
-          <span class="${CSS_PREFIX}-popup-value ${CSS_PREFIX}-copyable" data-copy="${result.secondaryFormatted}">${result.secondaryFormatted}</span>
-        </div>
-        ` : ''}
-        <div class="${CSS_PREFIX}-popup-row">
-          <span class="${CSS_PREFIX}-popup-label">Relative:</span>
-          <span class="${CSS_PREFIX}-popup-value">${result.relative}</span>
-        </div>
-        <div class="${CSS_PREFIX}-popup-row ${CSS_PREFIX}-popup-meta">
-          <span>${result.isSeconds ? 'Seconds' : 'Milliseconds'}</span>
-          <span>Double-click to copy</span>
-        </div>
-      </div>
-    `;
-    
-    document.body.appendChild(popup);
-    activePopup = popup;
-    
-    // Position popup
-    const rect = wrapper.getBoundingClientRect();
-    const popupRect = popup.getBoundingClientRect();
-    
-    let top = rect.bottom + window.scrollY + 8;
-    let left = rect.left + window.scrollX;
-    
-    // Adjust if off-screen
-    if (left + popupRect.width > window.innerWidth) {
-      left = window.innerWidth - popupRect.width - 16;
-    }
-    
-    if (top + popupRect.height > window.innerHeight + window.scrollY) {
-      top = rect.top + window.scrollY - popupRect.height - 8;
-    }
-    
-    popup.style.top = `${top}px`;
-    popup.style.left = `${left}px`;
-    
-    // Add double-click handler for copy
-    popup.addEventListener('dblclick', handlePopupClick);
-  }
-  
-  /**
-   * Hide floating popup
-   */
-  function hidePopup() {
-    if (activePopup) {
-      activePopup.remove();
-      activePopup = null;
-    }
-  }
-  
-  /**
-   * Handle click on popup to copy values
-   */
-  function handlePopupClick(event) {
-    const copyable = event.target.closest(`.${CSS_PREFIX}-copyable`);
-    if (copyable) {
-      const value = copyable.dataset.copy;
-      copyToClipboard(value);
-      showCopyFeedback(copyable);
     }
   }
   

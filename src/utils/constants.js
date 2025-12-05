@@ -19,8 +19,7 @@ window.EpochLens.Constants = {
   // Display modes
   DISPLAY_MODES: {
     TOOLTIP: 'tooltip',
-    INLINE: 'inline',
-    POPUP: 'popup'
+    INLINE: 'inline'
   },
   
   // Date format presets
