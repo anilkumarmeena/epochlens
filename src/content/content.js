@@ -420,8 +420,7 @@
       wrapper.parentNode.replaceChild(textNode, wrapper);
     });
     
-    // Remove popup and tooltip if visible
-    hidePopup();
+    // Remove tooltip if visible
     hideTooltip();
     
     // Reset count

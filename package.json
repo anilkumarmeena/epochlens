@@ -1,0 +1,28 @@
+{
+  "name": "epochlens",
+  "version": "1.0.0",
+  "description": "Convert Unix epoch timestamps on any webpage to human-readable dates",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "clean": "rm -rf dist && rm -f epochlens-*.zip",
+    "package": "npm run clean && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anilkumarmeena/epochlens.git"
+  },
+  "keywords": [
+    "chrome-extension",
+    "timestamp",
+    "epoch",
+    "unix-timestamp",
+    "converter",
+    "developer-tools"
+  ],
+  "author": "Anil Kumar Meena",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/anilkumarmeena/epochlens/issues"
+  },
+  "homepage": "https://github.com/anilkumarmeena/epochlens#readme"
+}

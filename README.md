@@ -173,6 +173,10 @@ EpochLens:
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+## Privacy
+
+EpochLens respects your privacy. It does NOT collect, store, or transmit any personal data. All processing happens locally in your browser. See our [Privacy Policy](PRIVACY.md) for details.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
