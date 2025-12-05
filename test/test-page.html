@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EpochLens Test Page</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --text: #1e293b;
+      --border: #e2e8f0;
+      --primary: #6366f1;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --text: #f1f5f9;
+        --border: #334155;
+      }
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    
+    h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      color: #64748b;
+      margin-bottom: 32px;
+    }
+    
+    section {
+      margin-bottom: 32px;
+      padding: 24px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    
+    h2 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: var(--primary);
+    }
+    
+    .timestamp-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .timestamp-row:last-child {
+      border-bottom: none;
+    }
+    
+    .label {
+      color: #64748b;
+      font-size: 14px;
+    }
+    
+    .value {
+      font-family: 'SF Mono', Monaco, monospace;
+      font-weight: 500;
+    }
+    
+    .log-entry {
+      padding: 8px 12px;
+      background: #1e293b;
+      color: #e2e8f0;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 13px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      overflow-x: auto;
+    }
+    
+    .json-block {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 8px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    
+    .note {
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(99, 102, 241, 0.1);
+      border-left: 4px solid var(--primary);
+      border-radius: 0 8px 8px 0;
+      font-size: 14px;
+    }
+    
+    button {
+      padding: 10px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+    
+    button:hover {
+      background: #4f46e5;
+    }
+    
+    #dynamic-content {
+      margin-top: 16px;
+      min-height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <h1>EpochLens Test Page</h1>
+  <p class="subtitle">This page contains various Unix timestamps for testing the extension.</p>
+
+  <section>
+    <h2>Unix Timestamps (Seconds - 10 digits)</h2>
+    <div class="timestamp-row">
+      <span class="label">Current time (approx):</span>
+      <span class="value">1701792000</span>
+    </div>
+    <div class="timestamp-row">
+      <span class="label">January 1, 2024:</span>
+      <span class="value">1704067200</span>
+    </div>
+    <div class="timestamp-row">
+      <span class="label">December 31, 2023:</span>
+      <span class="value">1703980800</span>
+    </div>
+    <div class="timestamp-row">
+      <span class="label">Year 2000:</span>
+      <span class="value">946684800</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Unix Timestamps (Milliseconds - 13 digits)</h2>
+    <div class="timestamp-row">
+      <span class="label">Current time (approx):</span>
+      <span class="value">1701792000000</span>
+    </div>
+    <div class="timestamp-row">
+      <span class="label">With milliseconds:</span>
+      <span class="value">1701792000123</span>
+    </div>
+    <div class="timestamp-row">
+      <span class="label">Random time:</span>
+      <span class="value">1699876543210</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Log Entries (Common Format)</h2>
+    <div class="log-entry">[1701792000] INFO: Application started successfully</div>
+    <div class="log-entry">[1701792060] DEBUG: Processing request ID 12345</div>
+    <div class="log-entry">[1701792120] WARN: High memory usage detected at 1701792100</div>
+    <div class="log-entry">[1701792180] ERROR: Connection timeout after 30s</div>
+  </section>
+
+  <section>
+    <h2>JSON Response</h2>
+    <div class="json-block">{
+  "id": "evt_123456",
+  "created_at": 1701792000,
+  "updated_at": 1701795600,
+  "metadata": {
+    "timestamp_ms": 1701792000000,
+    "expires_at": 1704384000
+  }
+}</div>
+  </section>
+
+  <section>
+    <h2>Inline Text</h2>
+    <p>
+      The event was created at 1701792000 and will expire on 1704384000. 
+      The precise creation time in milliseconds is 1701792000123.
+    </p>
+    <p>
+      Multiple timestamps in one line: 1701792000, 1701795600, 1701799200.
+    </p>
+  </section>
+
+  <section>
+    <h2>Edge Cases</h2>
+    <div class="timestamp-row">
+      <span class="label">Min valid (Year 2000):</span>
+      <span class="value">946684800</span>
+    </div>
+    <div class="timestamp-row">
+      <span class="label">Max valid (Year 2100):</span>
+      <span class="value">4102444800</span>
+    </div>
+    <div class="timestamp-row">
+      <span class="label">Invalid (too old):</span>
+      <span class="value">946684799</span>
+    </div>
+    <div class="timestamp-row">
+      <span class="label">Invalid (not a timestamp):</span>
+      <span class="value">1234567890123456</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Dynamic Content Test</h2>
+    <p>Click the button to add timestamps dynamically (tests MutationObserver):</p>
+    <button onclick="addDynamicContent()">Add Dynamic Timestamps</button>
+    <div id="dynamic-content"></div>
+  </section>
+
+  <div class="note">
+    <strong>How to test:</strong>
+    <ol style="margin-top: 8px; padding-left: 20px;">
+      <li>Load the EpochLens extension in Chrome</li>
+      <li>Open this page</li>
+      <li>Timestamps should be highlighted with dotted underlines</li>
+      <li>Hover over timestamps to see converted dates</li>
+      <li>Check the extension badge for timestamp count</li>
+      <li>Try the dynamic content button to test SPA support</li>
+    </ol>
+  </div>
+
+  <script>
+    let counter = 0;
+    
+    function addDynamicContent() {
+      const container = document.getElementById('dynamic-content');
+      const now = Date.now();
+      const seconds = Math.floor(now / 1000);
+      
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.textContent = `[${seconds}] Dynamic entry #${++counter} added at ${now}`;
+      
+      container.appendChild(entry);
+    }
+  </script>
+</body>
+</html>
+

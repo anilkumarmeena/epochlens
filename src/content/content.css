@@ -1,0 +1,302 @@
+/**
+ * EpochLens Content Styles
+ * Styling for timestamp indicators with system theme support
+ */
+
+/* CSS Variables for theming */
+:root {
+  --epochlens-primary: #6366f1;
+  --epochlens-primary-hover: #4f46e5;
+  --epochlens-bg: #ffffff;
+  --epochlens-bg-secondary: #f8fafc;
+  --epochlens-text: #1e293b;
+  --epochlens-text-secondary: #64748b;
+  --epochlens-border: #e2e8f0;
+  --epochlens-shadow: rgba(0, 0, 0, 0.1);
+  --epochlens-success: #10b981;
+  --epochlens-indicator: #6366f1;
+}
+
+/* Dark theme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --epochlens-primary: #818cf8;
+    --epochlens-primary-hover: #a5b4fc;
+    --epochlens-bg: #1e293b;
+    --epochlens-bg-secondary: #334155;
+    --epochlens-text: #f1f5f9;
+    --epochlens-text-secondary: #94a3b8;
+    --epochlens-border: #475569;
+    --epochlens-shadow: rgba(0, 0, 0, 0.3);
+    --epochlens-success: #34d399;
+    --epochlens-indicator: #818cf8;
+  }
+}
+
+/* Base timestamp wrapper */
+.epochlens-timestamp {
+  position: relative;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* Tooltip mode (default) - dotted underline */
+.epochlens-timestamp.epochlens-tooltip {
+  border-bottom: 1px dotted var(--epochlens-indicator);
+  text-decoration: none;
+}
+
+.epochlens-timestamp.epochlens-tooltip:hover {
+  border-bottom-style: solid;
+  background-color: rgba(99, 102, 241, 0.1);
+  border-radius: 2px;
+}
+
+/* Inline mode - badge next to timestamp */
+.epochlens-timestamp.epochlens-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.epochlens-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  font-size: 0.75em;
+  font-weight: 500;
+  color: var(--epochlens-primary);
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: 4px;
+  white-space: nowrap;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.epochlens-timestamp.epochlens-inline:hover .epochlens-badge {
+  background: rgba(99, 102, 241, 0.2);
+}
+
+/* Popup mode - subtle indicator */
+.epochlens-timestamp.epochlens-popup {
+  border-bottom: 2px dotted var(--epochlens-indicator);
+}
+
+.epochlens-timestamp.epochlens-popup:hover {
+  border-bottom-style: solid;
+}
+
+/* Floating popup */
+.epochlens-popup {
+  position: absolute;
+  z-index: 2147483647;
+  min-width: 280px;
+  max-width: 360px;
+  background: var(--epochlens-bg);
+  border: 1px solid var(--epochlens-border);
+  border-radius: 12px;
+  box-shadow: 
+    0 4px 6px -1px var(--epochlens-shadow),
+    0 10px 15px -3px var(--epochlens-shadow),
+    0 20px 25px -5px var(--epochlens-shadow);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  overflow: hidden;
+}
+
+.epochlens-popup-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, var(--epochlens-primary), #8b5cf6);
+  color: white;
+}
+
+.epochlens-popup-icon {
+  font-size: 16px;
+}
+
+.epochlens-popup-title {
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+.epochlens-popup-content {
+  padding: 12px 14px;
+}
+
+.epochlens-popup-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--epochlens-border);
+}
+
+.epochlens-popup-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.epochlens-popup-label {
+  color: var(--epochlens-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.epochlens-popup-value {
+  color: var(--epochlens-text);
+  font-weight: 500;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 12px;
+}
+
+.epochlens-popup-meta {
+  margin-top: 8px;
+  padding-top: 8px;
+  font-size: 11px;
+  color: var(--epochlens-text-secondary);
+}
+
+/* Copyable values */
+.epochlens-copyable {
+  cursor: pointer;
+  padding: 2px 6px;
+  margin: -2px -6px;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.epochlens-copyable:hover {
+  background-color: var(--epochlens-bg-secondary);
+}
+
+.epochlens-copyable:active {
+  transform: scale(0.98);
+}
+
+/* Copy feedback */
+.epochlens-copied {
+  position: relative;
+}
+
+.epochlens-timestamp.epochlens-copied::after,
+.epochlens-copyable.epochlens-copied::after {
+  content: 'Copied!';
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  background: var(--epochlens-success);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  white-space: nowrap;
+  animation: epochlens-fade-up 1s ease forwards;
+  pointer-events: none;
+  z-index: 2147483647;
+}
+
+@keyframes epochlens-fade-up {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-4px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+}
+
+/* Invalid timestamp indicator */
+.epochlens-timestamp.epochlens-invalid {
+  border-bottom-color: #ef4444;
+  opacity: 0.6;
+}
+
+/* Original text styling */
+.epochlens-original {
+  /* Inherit parent styles */
+}
+
+/* Highlight animation for newly found timestamps */
+@keyframes epochlens-highlight {
+  0% {
+    background-color: rgba(99, 102, 241, 0.3);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.epochlens-timestamp.epochlens-new {
+  animation: epochlens-highlight 1.5s ease;
+}
+
+/* Ensure popup is above everything */
+.epochlens-popup * {
+  box-sizing: border-box;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .epochlens-timestamp {
+    border-bottom-width: 2px;
+  }
+  
+  .epochlens-popup {
+    border-width: 2px;
+  }
+  
+  .epochlens-badge {
+    border: 1px solid var(--epochlens-primary);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .epochlens-timestamp,
+  .epochlens-popup,
+  .epochlens-copyable {
+    transition: none;
+  }
+  
+  .epochlens-timestamp.epochlens-copied::after,
+  .epochlens-copyable.epochlens-copied::after {
+    animation: none;
+    opacity: 1;
+  }
+  
+  .epochlens-timestamp.epochlens-new {
+    animation: none;
+  }
+}
+
+/* Print styles - hide interactive elements */
+@media print {
+  .epochlens-popup {
+    display: none !important;
+  }
+  
+  .epochlens-badge {
+    border: 1px solid currentColor;
+    background: transparent;
+  }
+  
+  .epochlens-timestamp {
+    border-bottom-style: solid;
+  }
+}
+
